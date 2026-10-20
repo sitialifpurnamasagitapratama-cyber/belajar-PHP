@@ -32,16 +32,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $asalSekolah = trim((string) ($_POST['asal_sekolah'] ?? ''));
             $hobi        = trim((string) ($_POST['hobi'] ?? ''));
             $agama       = trim((string) ($_POST['agama'] ?? ''));
-            $semester    = filter_var($_POST['semester'] ?? null, FILTER_VALIDATE_INT);
             $alamat      = trim((string) ($_POST['alamat'] ?? ''));
+            $email       = trim((string) ($_POST['email'] ?? ''));
+            $semester    = filter_var($_POST['semester'] ?? null, FILTER_VALIDATE_INT);
+            
             if ($nim === '' || $nama === '' || $fakultas === '' || $prodi === '' || $asalSekolah === '' || $semester === false || $semester < 1 || $semester > 14) {
                 throw new InvalidArgumentException('Lengkapi semua data wajib dan isi semester 1–14.');
             }
-            $mhs = new Mahasiswa($nim,$nama,$fakultas,$prodi,$asalSekolah,$semester,$hobi,$agama,$alamat,);
+            $mhs = new Mahasiswa($nim,$nama,$fakultas,$prodi,$asalSekolah,$semester,$hobi,$agama,$alamat,$email);
             $berhasil = $aksi === 'tambah'
             ? $repo->tambah($mhs)
             : $repo->ubah($nimLama, $mhs);
-
             if (!$berhasil) throw new InvalidArgumentException('Operasi gagal: NIM sudah digunakan atau data lama tidak ditemukan.');
             $pesan = $aksi === 'tambah' ? 'Data berhasil ditambahkan.' : 'Data berhasil diubah.';
         } else {
@@ -89,7 +90,8 @@ if (isset($_GET['edit'])) $edit = $repo->cari((string) $_GET['edit']);
  ['semester','Semester', (string)($edit?->semester ?? '')],
  ['hobi','Hobi', $edit?->hobi ?? ''],
  ['agama','Agama', $edit?->agama ?? ''],
-  ['alamat','Alamat', ($edit?->alamat?? '')],
+ ['alamat','Alamat', $edit?->alamat ?? ''],
+ ['email','Email', $edit?->email ?? ''],
 ];
 foreach ($fields as [$name,$label,$value]): ?>
 
@@ -152,7 +154,8 @@ foreach ($fields as [$name,$label,$value]): ?>
        <th>Semester</th>
        <th>Hobi</th>
        <th>Agama</th>
-        <th>Alamat</th>
+       <th>Alamat</th>
+       <th>Email</th>
        <th>Aksi</th>
        </tr>
     </thead>
@@ -168,6 +171,7 @@ foreach ($fields as [$name,$label,$value]): ?>
     <td><?= aman($m->hobi) ?>    </td>
     <td><?= aman($m->agama) ?>   </td>
     <td><?= aman($m->alamat) ?>   </td>
+    <td><?= aman($m->email) ?>   </td>
     <td><a class="btn" href="?edit=<?= urlencode($m->nim) ?>">Edit</a>
      <form method="post" onsubmit="return confirm('Hapus data mahasiswa ini?')">
         <input type="hidden" name="aksi" value="hapus">

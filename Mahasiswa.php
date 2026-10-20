@@ -12,7 +12,9 @@ class Mahasiswa
         public int $semester,
         public string $hobi="",
         public string $agama="",
-        public string $alamat=""
+        public string $alamat="",
+        public string $email=""
+
     ) {}
 
     public function ringkasan(): string
